@@ -4,7 +4,7 @@ Optional management plugin for first-party PirateZ WordPress components. Require
 
 ## Install and use
 
-Download `piratez-manager.zip` from this repository's GitHub Releases, upload it through **Plugins → Add New → Upload Plugin**, and activate it. Open **PirateZ** in the admin menu.
+With PirateZ Cyberpunk 1.3.0, use **Appearance → PirateZ Manager** to install the verified release, then activate it. With another theme, download `piratez-manager.zip` from GitHub Releases and use **Plugins → Add New → Upload Plugin**. Open **PirateZ** in the admin menu.
 
 The catalogue currently includes PirateZ Cyberpunk, Image Optimize, Cookie Consent and Manager itself. It offers stable-release checks, plugin installation, separate activation and component updates through native WordPress APIs. Theme installation and switching remain in Appearance; Manager never switches the active theme. Future modules are added when their repositories are provided and their releases are ready.
 
@@ -12,9 +12,9 @@ Each component keeps its own updater. Manager is not a shared runtime dependency
 
 ## Theme handoff and rollback
 
-* Theme **1.3.0** always registers its independent updater. With Manager active it defers catalogue ownership to Manager; with Manager inactive it restores the legacy **Appearance → PirateZ Updates & Modules** screen.
+* Theme **1.3.0** always registers its independent updater. Its **Appearance → PirateZ Manager** screen only installs, activates or opens Manager. The theme contains no backup catalogue or module-management implementation.
 * Theme **1.2.0** is also supported during rollout: Manager hides the old menu, redirects its bookmarks and disables the old management actions and duplicate plugin updater hooks. Its theme updater remains active.
-* Activate Manager before or after installing theme 1.3.0. Deactivate Manager to restore the theme fallback on the next request. No migration flags are saved.
+* Activate Manager before or after installing theme 1.3.0. Deactivating Manager removes its management interface; the theme offers its activation button again. Deleting Manager restores the install button. Existing theme/plugin operation and independent updaters continue. No migration flags are saved.
 * Switching to a standard theme leaves Manager available. It discovers installed PirateZ components by their Update URI, including renamed installation folders.
 
 No content, shortcode, Customizer or addon settings are moved or deleted. Manager has no persistent configuration to export; it reads existing installed-component state. It changes installation/update state only on explicit administrator actions. Deleting Manager leaves all other components and settings intact.
@@ -31,6 +31,6 @@ On multisite, network-activate Manager and use **Network Admin → PirateZ**; mo
 
 Run `python3 tools/build_release.py` for the runtime-only ZIP, `release.json` and `SHA256SUMS`. The package has a fixed top-level folder and normalized file permissions. Runtime packages exclude tests, tools, development files and repository metadata.
 
-Merge a new version into `main` to publish its immutable GitHub release. Bump the plugin header, `PIRATEZ_MANAGER_VERSION`, readme stable tag and changelog together. Existing releases/tags are never overwritten. The first Manager release needs one manual plugin upload; subsequent updates use WordPress.
+Merge a new version into `main` to publish its immutable GitHub release. Bump the plugin header, `PIRATEZ_MANAGER_VERSION`, readme stable tag and changelog together. Existing releases/tags are never overwritten. The theme installer can install the first Manager release, or use a manual plugin upload with another theme. Subsequent updates use WordPress.
 
 Run `python3 tests/package.py` and PHP syntax checks before merging. `tests/wordpress.cjs` exercises disposable WordPress installations with local release fixtures; see [tests/README.md](tests/README.md). Production credentials are never required.

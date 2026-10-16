@@ -68,7 +68,10 @@ if($action==='keep') {update_option('fixture_keep','preserved');set_theme_mod('f
 if($action==='deactivate-manager') {deactivate_plugins('piratez-manager/piratez-manager.php');}
 if($action==='activate-manager') {activate_plugin('piratez-manager/piratez-manager.php');}
 if($action==='deactivate-image') {deactivate_plugins('image-optimize-custom/piratez-image-optimize.php');}
-if($action==='nonce') {wp_set_current_user(1);echo wp_json_encode(array('nonce'=>wp_create_nonce('piratez_manager_component_piratez-manager_update')));exit;}
+if($action==='nonce') {wp_set_current_user(1);echo wp_json_encode(array('nonce'=>wp_create_nonce($_GET['for']??'piratez_manager_component_piratez-manager_update')));exit;}
+if($action==='remove-manager') {deactivate_plugins('piratez-manager/piratez-manager.php');require_once ABSPATH.'wp-admin/includes/file.php';WP_Filesystem();$GLOBALS['wp_filesystem']->delete(WP_PLUGIN_DIR.'/piratez-manager',true);wp_clean_plugins_cache();}
+if($action==='manager-collision') {wp_mkdir_p(WP_PLUGIN_DIR.'/piratez-manager');file_put_contents(WP_PLUGIN_DIR.'/piratez-manager/unrelated.php', "<?php /* Plugin Name: Unrelated fixture */");wp_clean_plugins_cache();}
+if($action==='rename-manager') {deactivate_plugins('piratez-manager/piratez-manager.php');rename(WP_PLUGIN_DIR.'/piratez-manager',WP_PLUGIN_DIR.'/manager-custom');wp_clean_plugins_cache();}
 if($action==='create-user') {wp_insert_user(array('user_login'=>'limited','user_pass'=>'limited-test-password','role'=>'editor'));}
 if($action==='file-mods') {update_option('fixture_file_mods',($_GET['value']??'')==='1'?'1':'0');}
 if($action==='switch-back') {switch_theme('piratez-cyberpunk');}
@@ -134,8 +137,8 @@ const cli=path.join(path.dirname(require.resolve('@wp-playground/cli/package.jso
   await request({action:'file-mods',value:'1'});
   await request({action:'deactivate-manager'});
   await page.goto(base+'/wp-admin/themes.php?page=piratez-components');
-  assert.equal(await page.locator('h1').innerText(),'PirateZ Updates & Modules');
-  state=await request({action:'state'});assert.equal(state.manager,null);assert.equal(state.legacy,true);
+  assert.ok(page.url().includes('piratez-manager-setup'));assert.equal(await page.getByRole('button',{name:'Activate PirateZ Manager',exact:true}).count(),1);assert.equal(await page.getByRole('button',{name:'Install module',exact:true}).count(),0);
+  state=await request({action:'state'});assert.equal(state.manager,null);assert.equal(state.legacy,false);
   native=await request({action:'native'});assert.ok(native.themes.no_update['piratez-cyberpunk']);
   await request({action:'activate-manager'});await request({action:'switch'});
   await page.goto(base+'/wp-admin/admin.php?page=piratez-manager');assert.equal(await page.locator('h1').innerText(),'PirateZ Manager');
@@ -143,8 +146,44 @@ const cli=path.join(path.dirname(require.resolve('@wp-playground/cli/package.jso
   const independent=await request({action:'plugin-native'});assert.ok(independent.no_update['image-optimize-custom/piratez-image-optimize.php']);assert.ok(independent.no_update['piratez-cookie-consent/piratez-cookie-consent.php']);assert.ok(independent.no_update['piratez-manager/piratez-manager.php']);
   await request({action:'deactivate-manager'});
   const without=await request({action:'plugin-native'});assert.ok(without.no_update['image-optimize-custom/piratez-image-optimize.php']);assert.ok(without.no_update['piratez-cookie-consent/piratez-cookie-consent.php']);
-  await request({action:'switch-back'});await request({action:'activate-manager'});
-  assert.equal((await request({action:'state'})).theme_keep,'preserved');
-  console.log('PASS: WordPress 7.1.3; old/new theme handoff; install/activate/update; Manager self-update; renamed addon; nonce and package denials; file-mod restrictions; deactivate rollback; standard theme; independent updates; saved settings.');
+  await request({action:'switch-back'});
+  const setup='http://127.0.0.1:9401/wp-admin/themes.php?page=piratez-manager-setup';
+  const bootstrap=async operation=>{
+    console.log('Testing theme Manager '+operation);await page.goto(setup);
+    const form=page.locator('form').filter({has:page.locator('input[name="action"][value="piratez_manager_setup"]')}).filter({has:page.locator('input[name="operation"][value="'+operation+'"]')});
+    assert.equal(await form.count(),1,await page.locator('body').innerText());
+    await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),form.locator('input[type=submit]').click()]);
+    assert.equal(await page.locator('.notice-error').count(),0,await page.locator('body').innerText());
+  };
+  // Installed but inactive: activation remains possible without file changes.
+  await request({action:'file-mods',value:'0'});await bootstrap('activate');await request({action:'file-mods',value:'1'});
+  assert.equal(await page.getByRole('link',{name:'Open PirateZ Manager',exact:true}).count(),1);
+  await request({action:'remove-manager'});await page.goto(setup);
+  assert.equal(await page.getByRole('button',{name:'Install PirateZ Manager',exact:true}).count(),1);
+  assert.equal(await page.getByRole('button',{name:'Install module',exact:true}).count(),0);
+  const invalid=await context.request.post(base+'/wp-admin/admin-post.php',{form:{action:'piratez_manager_setup',operation:'install',_wpnonce:'invalid'}});assert.equal(invalid.status(),403);
+  await request({action:'file-mods',value:'0'});await page.goto(setup);
+  assert.equal(await page.getByRole('button',{name:'Install PirateZ Manager',exact:true}).count(),0);
+  let installNonce=(await request({action:'nonce',for:'piratez_manager_setup_install'})).nonce;
+  const blockedInstall=await context.request.post(base+'/wp-admin/admin-post.php',{form:{action:'piratez_manager_setup',operation:'install',_wpnonce:installNonce}});assert.equal(blockedInstall.status(),403);
+  await request({action:'file-mods',value:'1'});
+  await request({action:'fixture',mode:'future',scenario:'tamper'});await page.goto(setup);
+  installNonce=(await request({action:'nonce',for:'piratez_manager_setup_install'})).nonce;
+  await context.request.post(base+'/wp-admin/admin-post.php',{form:{action:'piratez_manager_setup',operation:'install',_wpnonce:installNonce}});
+  state=await request({action:'state'});assert.ok(!state.plugins['piratez-manager/piratez-manager.php'],'tampered Manager must not install');
+  await request({action:'fixture',mode:'future'});await request({action:'manager-collision'});await page.goto(setup);
+  assert.ok((await page.locator('body').innerText()).includes('different component occupies'));
+  assert.equal(await page.getByRole('button',{name:'Install PirateZ Manager',exact:true}).count(),0);
+  const collision=await context.request.post(base+'/wp-admin/admin-post.php',{form:{action:'piratez_manager_setup',operation:'install',_wpnonce:installNonce}});assert.equal(collision.status(),409);
+  assert.ok(fs.existsSync(path.join(tmp,'site/wp-content/plugins/piratez-manager/unrelated.php')));
+  await request({action:'remove-manager'});await bootstrap('install');
+  state=await request({action:'state'});assert.ok(state.plugins['piratez-manager/piratez-manager.php']);assert.equal(state.manager,null);assert.equal(state.legacy,false);
+  await bootstrap('activate');assert.equal((await request({action:'state'})).manager,'1.0.1');
+  await request({action:'rename-manager'});await bootstrap('activate');
+  state=await request({action:'state'});assert.ok(state.active.includes('manager-custom/piratez-manager.php'));
+  assert.equal(state.theme_keep,'preserved');
+  assert.ok(!fs.existsSync(path.join(tmp,'site/wp-content/themes/piratez-cyberpunk/inc/modules-legacy.php')));
+
+  console.log('PASS: WordPress 7.1.3; old/new theme handoff; install/activate/update; Manager self-update; renamed addon; nonce and package denials; file-mod restrictions; installer-only fallback, verified Manager install/activation, renamed Manager; standard theme; independent updates; saved settings.');
  }finally{if(browser)await browser.close();server.kill('SIGTERM');setTimeout(()=>server.kill('SIGKILL'),1000).unref();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
