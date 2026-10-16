@@ -34,3 +34,7 @@ Run `python3 tools/build_release.py` for the runtime-only ZIP, `release.json` an
 Merge a new version into `main` to publish its immutable GitHub release. Bump the plugin header, `PIRATEZ_MANAGER_VERSION`, readme stable tag and changelog together. Existing releases/tags are never overwritten. The theme installer can install the first Manager release, or use a manual plugin upload with another theme. Subsequent updates use WordPress.
 
 Run `python3 tests/package.py` and PHP syntax checks before merging. `tests/wordpress.cjs` exercises disposable WordPress installations with local release fixtures; see [tests/README.md](tests/README.md). Production credentials are never required.
+
+## Editorial catalogue addition (1.1.0)
+
+Adds PirateZ Editorial as an independent first-party component. Its release manifest supplies WordPress/PHP requirements. Catalogue visibility can precede publication: no-release status is handled safely. Editorial must be published before the paired theme 1.4.0 handoff. Manager remains optional and its self-updater is unchanged.

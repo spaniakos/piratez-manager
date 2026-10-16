@@ -8,6 +8,7 @@ function piratez_manager_catalogue() {
         'theme' => array('name' => 'PirateZ Cyberpunk', 'type' => 'theme', 'slug' => 'piratez-cyberpunk', 'repo' => 'spaniakos/Piratez.gr-Theme', 'key' => 'piratez-cyberpunk', 'entry' => 'style.css'),
         'piratez-manager' => array('name' => 'PirateZ Manager', 'type' => 'plugin', 'slug' => 'piratez-manager', 'repo' => 'spaniakos/piratez-manager', 'key' => plugin_basename(PIRATEZ_MANAGER_FILE), 'entry' => 'piratez-manager.php'),
         'piratez-image-optimize' => array('name' => 'PirateZ Image Optimize', 'type' => 'plugin', 'slug' => 'piratez-image-optimize', 'repo' => 'spaniakos/piratez-image-optimize', 'key' => 'piratez-image-optimize/piratez-image-optimize.php', 'entry' => 'piratez-image-optimize.php'),
+        'piratez-editorial' => array('name' => 'PirateZ Editorial', 'type' => 'plugin', 'slug' => 'piratez-editorial', 'repo' => 'spaniakos/piratez-editorial', 'key' => 'piratez-editorial/piratez-editorial.php', 'entry' => 'piratez-editorial.php'),
         'piratez-cookie-consent' => array('name' => 'PirateZ Cookie Consent', 'type' => 'plugin', 'slug' => 'piratez-cookie-consent', 'repo' => 'spaniakos/piratez-cookie-consent', 'key' => 'piratez-cookie-consent/piratez-cookie-consent.php', 'entry' => 'piratez-cookie-consent.php'),
     );
     $plugins = get_plugins();
