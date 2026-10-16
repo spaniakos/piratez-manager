@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "scripts": {"wordpress": "node wordpress.cjs"},
+  "devDependencies": {"playwright": "1.62.1", "@wp-playground/cli": "3.1.58"}
+}
