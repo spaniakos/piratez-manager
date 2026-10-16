@@ -1,0 +1,14 @@
+{
+  "type": "plugin",
+  "slug": "piratez-manager",
+  "repo": "spaniakos/piratez-manager",
+  "entry": "piratez-manager.php",
+  "version_constant": "PIRATEZ_MANAGER_VERSION",
+  "tested": "7.1.3",
+  "runtime": [
+    "piratez-manager.php",
+    "includes",
+    "readme.txt",
+    "LICENSE"
+  ]
+}
