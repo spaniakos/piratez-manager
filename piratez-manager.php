@@ -3,7 +3,7 @@
  * Plugin Name: PirateZ Manager
  * Plugin URI: https://github.com/spaniakos/piratez-manager
  * Description: Optional catalogue, installation and update controls for independent PirateZ themes and plugins.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires at least: 7.1.3
  * Requires PHP: 7.4
  * Update URI: https://github.com/spaniakos/piratez-manager
@@ -14,7 +14,7 @@
  */
 if (!defined('ABSPATH')) { exit; }
 
-define('PIRATEZ_MANAGER_VERSION', '1.0.0');
+define('PIRATEZ_MANAGER_VERSION', '1.1.0');
 define('PIRATEZ_MANAGER_FILE', __FILE__);
 require_once __DIR__ . '/includes/github-updater.php';
 require_once __DIR__ . '/includes/components.php';
