@@ -3,7 +3,7 @@ Contributors: spaniakos
 Requires at least: 7.1.3
 Tested up to: 7.1.3
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,6 +16,10 @@ Manage PirateZ Cyberpunk, Image Optimize, Cookie Consent and Manager from the Pi
 Upload piratez-manager.zip through Plugins > Add New > Upload Plugin and activate it. Use the PirateZ admin menu. On multisite, network-activate Manager and use Network Admin > PirateZ; module activation there is network-wide.
 
 == Changelog ==
+
+= 1.1.1 =
+* Keep Modules explicitly first under PirateZ when product/custom-post-type submenus are registered.
+* Hide the theme Manager launcher while active and redirect legacy Appearance bookmarks; the theme launcher returns when inactive.
 
 = 1.1.0 =
 * Add independent PirateZ Editorial catalogue entry; keep native self-updates and optional Manager operation.

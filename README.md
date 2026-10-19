@@ -38,3 +38,7 @@ Run `python3 tests/package.py` and PHP syntax checks before merging. `tests/word
 ## Editorial catalogue addition (1.1.0)
 
 Adds PirateZ Editorial as an independent first-party component. Its release manifest supplies WordPress/PHP requirements. Catalogue visibility can precede publication: no-release status is handled safely. Editorial must be published before the paired theme 1.4.0 handoff. Manager remains optional and its self-updater is unchanged.
+
+## Admin navigation
+
+With Manager active, **PirateZ → Modules** is the first submenu and opens the catalogue. Addon pages and product catalogues remain alongside it. The theme’s Appearance → PirateZ Manager launcher is hidden while Manager is active; old launcher bookmarks redirect to Modules. Deactivating Manager lets the theme’s install/activate launcher return and leaves addon menus/updaters independent.

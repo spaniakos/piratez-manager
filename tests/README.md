@@ -15,3 +15,9 @@ Run `node tests/wordpress.cjs` from the repository root, with the development de
 The release CI runs syntax and reproducible-package checks. This source-baseline integration suite is run separately because the authoritative user-provided WordPress archive is not a repository asset. Multisite requires a separate staging pass before deployment there.
 
 The suite also verifies the installer-only theme fallback: missing, installed/inactive, active and renamed Manager; separate install/activation; denied file modifications; invalid nonces; rejected tampered packages; and the absence of legacy theme management code. No Manager runtime changes are required for this launcher.
+
+## Product-menu regression
+
+`admin-menu.cjs` runs against the supplied WordPress 7.1.3 baseline with the PirateZ theme, Editorial (catalogue enabled), Image Optimize and Cookie Consent. Set `WP_SOURCE`, `PIRATEZ_THEME_SOURCE`, `PIRATEZ_EDITORIAL_SOURCE`, `PIRATEZ_IMAGE_SOURCE`, `PIRATEZ_COOKIE_SOURCE` and `PIRATEZ_CHROMIUM_EXECUTABLE`, then run it with the existing Playground/Playwright dependencies resolvable through `NODE_PATH`.
+
+It checks that Modules stays first with a product CPT, navigation does not open Products instead, both legacy Appearance URLs redirect while Manager is active, and deactivation restores the theme launcher without removing independent addon menus.
