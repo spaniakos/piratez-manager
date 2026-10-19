@@ -7,11 +7,24 @@ add_action('network_admin_menu', 'piratez_manager_menu');
 function piratez_manager_menu() {
     if (is_multisite() && !is_network_admin()) { return; }
     add_menu_page('PirateZ Manager', 'PirateZ', piratez_manager_capability(), 'piratez-manager', 'piratez_manager_page', 'dashicons-admin-plugins');
+    // Custom post types (such as Products) can register children before us.
+    // Keep the management screen explicitly present and first in the submenu.
+    add_submenu_page('piratez-manager', 'PirateZ Modules', 'Modules', piratez_manager_capability(), 'piratez-manager', 'piratez_manager_page', 0);
 }
 
 // Compatibility with theme 1.2.0, which predates the handoff flag. Keep its
 // independent theme updater but retire its duplicate management screen/actions.
-add_action('admin_menu', function () { remove_submenu_page('themes.php', 'piratez-components'); }, 100);
+add_action('admin_menu', function () {
+    remove_submenu_page('themes.php', 'piratez-components');
+    // The theme launcher is needed only while Manager is inactive/absent.
+    remove_submenu_page('themes.php', 'piratez-manager-setup');
+    // Redirect old bookmarks before WordPress checks registered admin pages.
+    if (($GLOBALS['pagenow'] ?? '') === 'themes.php'
+        && in_array($_GET['page'] ?? '', array('piratez-components', 'piratez-manager-setup'), true)
+        && current_user_can(piratez_manager_capability())) {
+        wp_safe_redirect(piratez_manager_url()); exit;
+    }
+}, 100);
 add_action('after_setup_theme', function () {
     remove_action('admin_post_piratez_component', 'piratez_component_action');
     if (!function_exists('piratez_component_updaters')) { return; }
@@ -24,11 +37,6 @@ add_action('after_setup_theme', function () {
         remove_filter('plugins_api', array($client, 'info'), 20);
     }
 }, 100);
-add_action('admin_init', function () {
-    if (($GLOBALS['pagenow'] ?? '') === 'themes.php' && ($_GET['page'] ?? '') === 'piratez-components' && current_user_can(piratez_manager_capability())) {
-        wp_safe_redirect(piratez_manager_url()); exit;
-    }
-});
 
 function piratez_manager_component_form($id, $operation, $label) {
     echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:inline-block;margin:0 8px 8px 0">';
